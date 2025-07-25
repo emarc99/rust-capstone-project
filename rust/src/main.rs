@@ -156,12 +156,12 @@ fn main() -> bitcoincore_rpc::Result<()> {
     // Check transaction in mempool
 
     // Fetch the unconfirmed transaction from the node's mempool
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Debug)]
     struct MempoolEntry {
         size: Option<u64>,
-        fee: f64,
+        fee: Option<f64>,
         #[serde(rename = "modifiedfee")]
-        modified_fee: f64,
+        modified_fee: Option<f64>,
         time: u64,
         height: u64,
         #[serde(rename = "descendantcount")]
@@ -177,7 +177,7 @@ fn main() -> bitcoincore_rpc::Result<()> {
         #[serde(rename = "ancestorfees")]
         ancestor_fees: f64,
         wtxid: String,
-        fees: serde_json::Value,
+        fees: Option<serde_json::Value>,
         depends: Vec<String>,
         #[serde(rename = "spentby")]
         spent_by: Vec<String>,
@@ -189,7 +189,13 @@ fn main() -> bitcoincore_rpc::Result<()> {
     println!(
         "Transaction in mempool: size={}, fee={}",
         mempool_entry.size.unwrap_or(0),
-        mempool_entry.fee
+        mempool_entry.fee.unwrap_or_else(|| {
+            mempool_entry
+                .fees
+                .as_ref()
+                .and_then(|f| f.get("base").and_then(|v| v.as_f64()))
+                .unwrap_or(0.0)
+        })
     );
 
     // Mine 1 block to confirm the transaction
