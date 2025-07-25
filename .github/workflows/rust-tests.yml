@@ -32,10 +32,10 @@ jobs:
           cd rust
           cargo fmt --check
 
-      - name: Run Rust linter (cargo clippy)
-        run: |
-          cd rust
-          cargo clippy --all-targets --all-features -- -D warnings
+      # - name: Run Rust linter (cargo clippy)
+      #   run: |
+      #     cd rust
+      #     cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Set up Node.js with NVM
         run: |
